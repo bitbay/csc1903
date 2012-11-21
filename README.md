@@ -69,27 +69,44 @@ as in this pseudo-code:
 		 */
 		 
 		// record matching
-		if splittedTerms.or.length > 0 && splittedTerms.and.length > 0
-			if matchedAttrs.or.length > 0 && matchedTerms.and.length > 0
-					matchedRecords.push( { 	record:inputObj,
-											matches:matchedAttrs })
-			endif
-		else if splittedTerms.or.length > 0
-			if matchedAttrs.or.length > 0
-				matchedRecords.push( { 	record:inputObj,
-										matches:matchedAttrs })
-			endif
-		else if splittedTerms.and.length > 0
-			if matchedTerms.and.length > 0
-					matchedRecords.push( { 	record:inputObj,
-											matches:matchedAttrs })
-			endif
-		else
-			// empty search term
-		endif	// record matching
+		
+		/*
+		 * now this is just a really simple explanation on how the matching 
+		 * algorithm for each record works, please see full details in the 
+		 * actual implementation...
+		 */
+		var matchType
+		
+		if splittedTerms.or.length > 0
+			matchType.add(OR)
+		if splittedTerms.and.length > 0
+			matchType.add(AND)
+		if splittedTerms.not.length > 0
+			matchType.add(NOT)
+		
+		switch matchType
+			case OR
+				if matchedAttrs.or > 0
+					matched = true
+				break
+			case AND
+				if matchedAttrs.and == splittedTerms.and
+					matched = true
+				break
+			case NOT
+				if matchedAttrs.not == 0
+					matched = true
+				break
+		endswitch 
+		
+		if matched matchedRecords.push({
+				record: inputObj,
+				matches: matchedAttrs,
+				weight: calculatedWeight(matchedAttrs) });
+				
 	endfor	// inputObj
 	return matchedRecords
-	
+
 with the following conditional logic:
 -	if there are no search terms, the records automatically match, eg. return
 	all inputRecords as	matched.
@@ -97,4 +114,6 @@ with the following conditional logic:
 	the searching function in case the input query equals "", @see original
 	jsearch.html at line 6769).
 
-For in-detail function of the 
+For in-detail function of the searching and matching methods see the corresponding
+methods in the CSC1903 class.
+

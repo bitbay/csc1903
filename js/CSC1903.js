@@ -1,3 +1,20 @@
+/**
+ * Cloudspokes challenge #1903 - JSON Search UI with JavaScript
+ * 
+ * CSC1903.js - Main class (CSC1903), Logger helper class (Logger)
+ *
+ * Features:
+ *	- search terms of type OR, AND (+), NOT (-)
+ * 
+ * @author	daniel@bitbay.org
+ * @version
+ */
+
+/**
+ * The main class.
+ *
+ * Only dependency is jQuery.
+ */
 var CSC1903 = (function($) {
 	/* PRIVATE METHODS */
 	
@@ -297,29 +314,7 @@ var CSC1903 = (function($) {
 	function search(searchTerm, inputArray, attributes) {
 		// split terms
 		var splittedTerms = splitSearchTerm(searchTerm);
-		/*
-		var inputArray = [
-			{
-				"name": "Mauritius",
-				"description": "Ap #382-7722 Sem. Road",
-				"tags": "ten, two, five, one, four",
-				"color": "green",
-				"number": "3"
-			},
-			{
-				"name": "Macao",
-				"description": "4431 Vel, Avenue",
-				"color": "indigo, green",
-				"number": "9"
-			},
-			{
-				"name": "Macao",
-				"description": "4431 Vel, Avenue",
-				"color": "indigo, velvet",
-				"number": "9"
-			}
-		];
-		*/
+		
 		// match results
 		var results = matchTerms(splittedTerms, inputArray, attributes);
 		
@@ -328,6 +323,7 @@ var CSC1903 = (function($) {
 		
 		return results;
 	};
+	
 	/* Public methods exposed for CSC1903 */
 	return {
 		search : search,
