@@ -10,7 +10,27 @@ The page uses some mockup json data defined in javascript, allowing the user to 
 
 The results obtained by the CSC1903.search method are returned as a "weight-sorted" array, where the "weight" of each result depends on the number of occurrence of the matching search terms. Best match is the result with the most weight.
 
-Classes are tested with [Jasmine](http://pivotal.github.com/jasmine/), source for test classes can be found inside the folder <strong>./spec</strong>.
+Classes are tested with [Jasmine](http://pivotal.github.com/jasmine/), source for test classes can be found inside the folder <strong>./src/test/spec</strong>.
+
+Main class is inside the folder <strong>./src/main/js</strong>.
+
+## Project folder structure
+<pre>
+csc1903						project root
+ |
+ |-lib						contains third-party libraries
+ |---google.closure			google closure compiler binaries, used in ANT
+ |---jasmine-1.2.0			jasmine unit testing
+ |
+ |-src						contains the source of the project
+ |---main					this folder contains the application source
+ |-----css					styles
+ |-------cupertino
+ |---------images
+ |-----js					here is the CSC1903.js class located
+ |---test					folder with files for running tests
+ |-----spec					test specifications 
+</pre>
 
 ## Class usage
 
@@ -38,14 +58,14 @@ or alternatively get source from git:
 
 The only configuration is located in the <strong>CSC1903.js</strong> file, inside the Logger class - DEBUG. This controls whether the application should log it's progress to the the console or not.
 
-The ANT <strong>build.xml</strong> has a browser.exe property that may need adjustments for Your system. If the browser You want to use is inside Your $PATH, just change this properties value to the name of the browsers executable. Alternatively You can define a full-path containing the executable.
+The ANT <strong>build.xml</strong> has a browser.exe property that may need adjustments for Your system. If the browser You want to use is inside Your $PATH, just change this property value to the name of the browsers executable You would like to use. Alternatively You can define the absolute path containing the executable (with the executable at the end).
 
 ## Compiling the application
 
 The application uses ANT for the compiling, deploying and testing, so compilation is as straightforward as:
 <pre>~workspace/csc1903$ ant all</pre>
 
-This will compile all sources into the <strong>./build</strong> folder, populate the <strong>./dist</strong> folder with a ready to deploy version of the demo application (with the production ready, compressed js class), and finally open up a browser with the main html page.
+This will compile all sources into the <strong>./build</strong> folder, populate the <strong>./dist</strong> folder with a ready to deploy version of the demo application (with the production-ready, compressed js class), and finally open up a browser with the main html page.
 
 By default, the application does not log debug messages to the console. To turn them on, set the Logger class DEBUG field to true.
 
@@ -60,18 +80,23 @@ from the project directory (where the build.xml is).
 Run with ANT, typing:
 <pre>~workspace/csc1903$ ant run</pre>
 
+Alternatively, You could navigate with a browser to <strong>./dist/Jsearch.html</strong>.
+
 ## Running tests
 
 To run the Jasmin specs included using ANT, type:
 <pre>~workspace/csc1903$ ant test-run</pre>
 
-This will build the application including <strong>./build/test</strong> folder, and run the <strong>./build/test/SpecRunner.html</strong> file in the browser. 
+This will build the application including <strong>./build/test</strong> folder, and open the <strong>./build/test/SpecRunner.html</strong> file in the browser.
+
+Notes on test warnings.
+The application depends on/uses the jQuery plugin, and throws some warnings about not defined variables/methods of it, even with the closure compilers @externs_url directive. Till now i was not able to determine if it is caused by bugs or my lack of knowledge.
 
 # Application Internals
 
 ## About the search term parsing
 
-Basically, the search term may contain three type of control commands, <strong>OR</strong>, <strong>AND</strong>, and <strong>NOT</strong>. All of these can be without quotes (words) or quoted (complex terms). The <strong>AND</strong> control is defined by the plus '+' sign, the <strong>NOT</strong> command is defined by the minus '-' sign, and the <strong>OR</strong> has no special control character (each matched term in the search string without +/- will be considered to be of this type).
+Basically, the search term may contain three type of control commands, <strong>OR</strong>, <strong>AND</strong>, and <strong>NOT</strong>, as many times as the User needs and in any order/mixing. All of these can be without quotes (words) or quoted (complex terms). The <strong>AND</strong> control is defined by the plus '+' sign, the <strong>NOT</strong> command is defined by the minus '-' sign, and the <strong>OR</strong> has no special control character (each matched term in the search string without +/- will be considered to be of this type).
 
 ## HTML page
 
@@ -79,7 +104,7 @@ Some modifications done to the original html:
 * the results are passed around as argument to the following functions:
 		showResults(results)
 		createTable(results)
-* generally, checkbox inputs in html should have their value property set. In this case these value properties should match the attribute field names in the to-be-checked objects. (as in <input type="checkbox" value="color"> would correspond to {color:""}) These could be interpreted as "hard-coded" constants/values...
+* generally, checkbox inputs in html should have their value property set. In this case these value properties should match the attribute field names in the to-be-checked objects. (as in --input type="checkbox" value="color"-- would correspond to {color:""}) These could be interpreted as "hard-coded" constants/values...
 
 More inplementation changes are done inside the function searchclick(). Please read the comments/annotations inside that function for details.
 
@@ -93,7 +118,7 @@ as in the following pseudo-code.
 One important thing to notice is that during the <strong>preliminatory matching</strong> phase the matched terms are saved as keys with arrays as values where the matched json-properties get pushed as in:
 <pre>var matchedAttrs = { or:{}, and:{}, not:{} }
 where
-or = {	"matched term string": [ "mathced json.property 1", "mathced json.property 1" ] }</pre>
+or = {	"matched term string": [ "mathced json.property 1", "mathced json.property 2" ] }</pre>
 This way the final <strong>record matching</strong> algorithm is <strong>TRIVIAL</strong> (especially the AND matching).
  
 Pseudo-code:
@@ -164,8 +189,10 @@ Pseudo-code:
 		if splittedTerms.not.length > 0
 			matchType.add(NOT)
 		
-		// here are just the basic condition listed, to see all the combinations
-		// please see the source file.
+		/*
+		 * just the basic conditions are listed here, to see all the combinations
+		 * please see the source file.
+		 */
 		switch matchType
 			case OR
 				if matchedAttrs.or.length > 0
