@@ -5,7 +5,8 @@
  *
  * Features:
  *	- search terms of type OR, AND (+), NOT (-)
- * 
+ * 	- weighted ordering search results
+ *
  * @author	daniel@bitbay.org
  * @version
  */
@@ -331,6 +332,7 @@ var CSC1903 = (function($) {
 		calculateWeight: calculateWeight,
 		matchTerms: matchTerms,
 		splitSearchTerm: splitSearchTerm,
+		order: order,
 		trim: trim,
 		countOwnProps: countOwnProps
 	};

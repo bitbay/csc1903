@@ -1,15 +1,68 @@
+# Description
+
+This is a demo page (Main) for the "JSON Search UI with JavaScript" CloudSpokes Challenge (CSC1903).
+The page uses some mockup json data defined in javascript, allowing the user to query results from this dataset. The query can be filtered for specific properties of the objects in the dataset controlled by some checkboxes. The query string itself may contain the following control commands:
+
+* <strong>OR</strong> term, example query 'Macao green'
+* <strong>AND</strong> term, example query 'Macao +green'
+* <strong>NOT</strong> term, example query 'Macao -indigo'
+* any of these mixed, example query 'Macao -9 +green +indigo'
+
+The results obtained by the CSC1903.search method are returned as a "weight-sorted" array, where the "weight" of each result depends on the number of occurrence of the matching search terms. Best match is the result with the most weight.
+
+Classes are tested with [Jasmine](http://pivotal.github.com/jasmine/), source for test classes can be found inside the folder <strong>./spec</strong>.
+
+## Class usage
+
+To get the results from an array of Objects, call the CSC1903.search public method of the class. The methods signature is
+<code>CSC1903.search(searchTerm, inputArray, attributes)</code>
+About details of the calling arguments, please read the function description inside the class.
+
+# Installation / deployment
+
+## Setting up project folder
+
+Create a folder in Your workspace:
+<pre>$ cd ~/workspace
+$ mkdir csc1903</pre>
+
+## Getting source
+
+Unpack the submitted zip archive:
+<pre>csc1903$ unzip csc1903.zip</pre>
+	
+or alternatively get source from git:
+<pre>$ git clone https://github.com/bitbay/csc1884.git</pre>
+
+## Configuration
+
+The only configuration is located in the <strong>CSC1903.js</strong> file, inside the Logger class - DEBUG. This controls whether the application should log it's progress to the the console or not.
+
+## Compiling the application
+
+The application runs inside a browser, there is no need to compile any part of it - no ANT build script included for the very same reason.
+
+## Running the application
+
+Open up the <strong>./Jsearch.html</strong> in a web browser to run the application.
+
+## Running tests
+
+To run the Jasmin specs included, open the <strong>./SpecRunner.html</strong> in a web browser. You should see the results.
+
+# Application Internals
+
+## HTML page
+
 Some modifications done to the original html:
--	the results are passed around as argument to the following functions:
+* the results are passed around as argument to the following functions:
 		showResults(results)
 		createTable(results)
--	generally, checkbox inputs in html should have their value property set. In
-	this case these value properties should match the attribute field names in
-	the to-be-checked objects.
-	(as in <input type="checkbox" value="color"> would correspond to {color:""})
-	These could be interpreted as "hard-coded" constants/values...
+* generally, checkbox inputs in html should have their value property set. In this case these value properties should match the attribute field names in the to-be-checked objects. (as in <input type="checkbox" value="color"> would correspond to {color:""}) These could be interpreted as "hard-coded" constants/values...
 
-The more concrete inplementation changes done inside the function searchclick().
-Please read the comments/annotations inside that function for details.
+More inplementation changes are done inside the function searchclick(). Please read the comments/annotations inside that function for details.
+
+## CSC1903 class
 
 The search function basically does two things: splits the search term into OR and
 AND chunks, saving them in a splittedTerms object with these two properties.
@@ -116,4 +169,3 @@ with the following conditional logic:
 
 For in-detail function of the searching and matching methods see the corresponding
 methods in the CSC1903 class.
-
