@@ -1,0 +1,151 @@
+<?xml version="1.0"?>
+<project name="CSC1903" basedir="." default="help">
+    <property name="src" value="src"/>
+    <property name="build.dir" value="build"/>
+    <property name="dist.dir" value="dist"/>
+    <property name="test.dir" location="build/test"/>
+    <property name="lib.dir" value="lib"/>
+    <property name="compiler" value="${lib.dir}/google.closure/compiler.jar"/>
+    <property name="browser.exe" value="google-chrome"/>
+    
+    <!-- Define google closure compiler task -->
+    <taskdef name="jscomp" classname="com.google.javascript.jscomp.ant.CompileTask"
+           classpath="${compiler}"/>
+           
+    <!-- Prints the help message-->
+	<target name="help"
+			description="Prints this buildfiles help message">
+		<echo>You can use the following targets:</echo>
+		<echo></echo>
+		<echo>  help         : (default) Prints this message </echo>
+		<echo></echo>
+		<echo>  all          : Cleans, compiles, deploys, and runs the demo application</echo>
+		<echo>  clean        : Deletes work directories</echo>
+		<echo>  compile      : Compiles sources into the build directory</echo>
+		<echo>  dist         : Copy compiled sources and other assets into a deployable folder </echo>
+		<echo>  run          : Renders the demo html in browser</echo>
+		<echo></echo>
+		<echo>  test-deloy   : Compiles dependencies, and deploys the test folder with test files</echo>
+		<echo>  test-run     : Compiles and runs all tests in browser</echo>
+		<echo></echo>
+		<echo>For example, to clean, compile, and package all at once, run:</echo>
+		<echo>prompt> ant all</echo>
+		<echo></echo>
+		<echo>To run all tests included, run:</echo>
+		<echo>prompt> ant test-run</echo>
+	</target>
+	
+	<!-- Cleans, compiles, and packages application -->
+	<target name="all"
+			depends="run"
+			description="Cleans, compiles, and packages application"/>
+	
+	<!-- Deletes work directories -->
+	<target name="clean"
+			description="Deletes work directories">
+			
+        <delete dir="${build.dir}"/>
+        <delete dir="${dist.dir}"/>
+        
+    </target>
+ 
+ 	<!-- Creates work directories -->
+    <target name="create"
+    		depends="clean"
+    		description="Creates work directories">
+    		
+        <mkdir dir="${build.dir}"/>
+        
+    </target>
+    
+    <!-- Compiles source js with google closure compiler into build directory -->
+    <target name="compile"
+    		depends="create"
+    		description="Compiles sources into the build directory">
+    		
+    		<jscomp compilationLevel="simple" warning="verbose"
+				debug="false" output="${build.dir}/CSC1903.min.js">
+				
+				<sources dir="${src}/main/js">
+					<file name="CSC1903.js"/>
+				</sources>
+
+			</jscomp>
+			
+    </target>
+	
+	<!-- Creates the distribution package -->
+    <target name="dist"
+    		depends="compile"
+    		description="Creates the package ready for distribution">
+        
+        <mkdir dir="${dist.dir}"/>
+        
+    	<!-- Copy all files into distribution folder -->
+    	<copy todir="${dist.dir}">
+    		<fileset dir="${src}/main">
+    			<!-- do not copy source, copy compiled (minimized) version instead -->
+    			<exclude name="js/CSC1903.js"/>
+    		</fileset>
+  		</copy>
+  		
+  		<!-- Copy compiled js to dist folder -->
+  		<copy todir="${dist.dir}/js">
+  			<fileset dir="${build.dir}">
+  				<exclude name="test"/>
+  			</fileset>
+  		</copy>
+  		
+    </target>
+    
+    <!-- Runs the html in the browser -->
+    <target name="run"
+    		depends="dist"
+    		description="Runs the html in the browser">
+    	
+    	<exec executable="${browser.exe}">
+			<arg value="${dist.dir}/Jsearch.html"/>
+		</exec>
+		
+    </target>
+    
+	<!-- Cleanup/create folders for test compile -->
+	<target name="test-init"
+			description="Create the folders for test compile">
+			
+		<delete dir="${test.dir}"/>
+		<mkdir dir="${test.dir}"/>
+		<mkdir dir="${test.dir}/lib/jasmine-1.2.0"/>
+		
+	</target>
+	
+	<!-- Deploy test files into build/test folder -->
+	<target name="test-deploy"
+			depends="test-init"
+			description="Deploys the test folder with test files">
+			
+		<copy todir="${test.dir}">
+			<fileset dir="${src}/test" />
+		</copy>
+		<copy todir="${test.dir}/lib">
+			<fileset dir="${src}/main/js">
+				<include name="jquery-1.6.2.min.js"/>
+			</fileset>
+		</copy>
+		<copy todir="${test.dir}/lib/jasmine-1.2.0">
+			<fileset dir="${lib.dir}/jasmine-1.2.0" />
+		</copy>
+		
+	</target>
+	
+	<!-- Run the test cases/classes -->
+	<target name="test-run"
+			depends="compile, test-deploy"
+			description="Run tests in the browser">
+		
+		<exec executable="${browser.exe}">
+			<arg value="${test.dir}/SpecRunner.html"/>
+		</exec>
+		
+	</target>
+</project>
