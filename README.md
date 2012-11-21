@@ -24,33 +24,54 @@ About details of the calling arguments, please read the function description ins
 
 Create a folder in Your workspace:
 <pre>$ cd ~/workspace
-$ mkdir csc1903</pre>
+~workspace$ mkdir csc1903</pre>
 
 ## Getting source
 
 Unpack the submitted zip archive:
-<pre>csc1903$ unzip csc1903.zip</pre>
+<pre>~workspace/csc1903$ unzip csc1903.zip</pre>
 	
 or alternatively get source from git:
-<pre>$ git clone https://github.com/bitbay/csc1884.git</pre>
+<pre>~workspace$ git clone https://github.com/bitbay/csc1884.git</pre>
 
 ## Configuration
 
 The only configuration is located in the <strong>CSC1903.js</strong> file, inside the Logger class - DEBUG. This controls whether the application should log it's progress to the the console or not.
 
+The ANT <strong>build.xml</strong> has a browser.exe property that may need adjustments for Your system. If the browser You want to use is inside Your $PATH, just change this properties value to the name of the browsers executable. Alternatively You can define a full-path containing the executable.
+
 ## Compiling the application
 
-The application runs inside a browser, there is no need to compile any part of it - no ANT build script included for the very same reason.
+The application uses ANT for the compiling, deploying and testing, so compilation is as straightforward as:
+<pre>~workspace/csc1903$ ant all</pre>
+
+This will compile all sources into the <strong>./build</strong> folder, populate the <strong>./dist</strong> folder with a ready to deploy version of the demo application (with the production ready, compressed js class), and finally open up a browser with the main html page.
+
+By default, the application does not log debug messages to the console. To turn them on, set the Logger class DEBUG field to true.
+
+To see all the available ANT tasks, type 
+<pre>~workspace/csc1903$ ant help</pre>
+or simply
+<pre>~workspace/csc1903$ ant</pre>
+from the project directory (where the build.xml is).
 
 ## Running the application
 
-Open up the <strong>./Jsearch.html</strong> in a web browser to run the application.
+Run with ANT, typing:
+<pre>~workspace/csc1903$ ant run</pre>
 
 ## Running tests
 
-To run the Jasmin specs included, open the <strong>./SpecRunner.html</strong> in a web browser. You should see the results.
+To run the Jasmin specs included using ANT, type:
+<pre>~workspace/csc1903$ ant test-run</pre>
+
+This will build the application including <strong>./build/test</strong> folder, and run the <strong>./build/test/SpecRunner.html</strong> file in the browser. 
 
 # Application Internals
+
+## About the search term parsing
+
+Basically, the search term may contain three type of control commands, <strong>OR</strong>, <strong>AND</strong>, and <strong>NOT</strong>. All of these can be without quotes (words) or quoted (complex terms). The <strong>AND</strong> control is defined by the plus '+' sign, the <strong>NOT</strong> command is defined by the minus '-' sign, and the <strong>OR</strong> has no special control character (each matched term in the search string without +/- will be considered to be of this type).
 
 ## HTML page
 
@@ -64,12 +85,18 @@ More inplementation changes are done inside the function searchclick(). Please r
 
 ## CSC1903 class
 
-The search function basically does two things: splits the search term into OR and
-AND chunks, saving them in a splittedTerms object with these two properties.
-	var splittedTerms = { or: [], and: [] }
+The search function basically does two things: splits the search term into OR, AND, and NOT chunks, saving them in a splittedTerms object with these three properties.
+<pre>var splittedTerms = { or: [], and: [], not: [] }</pre>
 
 After separating the search terms, it parses the inputArray for possible matches,
-as in this pseudo-code:
+as in the following pseudo-code.
+One important thing to notice is that during the <strong>preliminatory matching</strong> phase the matched terms are saved as keys with arrays as values where the matched json-properties get pushed as in:
+<pre>var matchedAttrs = { or:{}, and:{}, not:{} }
+where
+or = {	"matched term string": [ "mathced json.property 1", "mathced json.property 1" ] }</pre>
+This way the final <strong>record matching</strong> algorithm is <strong>TRIVIAL</strong> (especially the AND matching).
+ 
+Pseudo-code:
 	
 	// store the matched records in an array
 	var matchedRecords = [];
@@ -83,7 +110,7 @@ as in this pseudo-code:
 			 */
 			 
 			if attributes.contains(attr)
-				var matchedAttrs = { or:{}, and:{} }
+				var matchedAttrs = { or:{}, and:{}, not:{} }
 				
 				/*
 				 * all search terms ("or" and "and") are checked against all
@@ -137,17 +164,19 @@ as in this pseudo-code:
 		if splittedTerms.not.length > 0
 			matchType.add(NOT)
 		
+		// here are just the basic condition listed, to see all the combinations
+		// please see the source file.
 		switch matchType
 			case OR
-				if matchedAttrs.or > 0
+				if matchedAttrs.or.length > 0
 					matched = true
 				break
 			case AND
-				if matchedAttrs.and == splittedTerms.and
+				if matchedAttrs.and.length == splittedTerms.and.length
 					matched = true
 				break
 			case NOT
-				if matchedAttrs.not == 0
+				if matchedAttrs.not.length == 0
 					matched = true
 				break
 		endswitch 
@@ -160,7 +189,7 @@ as in this pseudo-code:
 	endfor	// inputObj
 	return matchedRecords
 
-with the following conditional logic:
+with the following assertion:
 -	if there are no search terms, the records automatically match, eg. return
 	all inputRecords as	matched.
 	(This should not be the case, since the original script does not even call
