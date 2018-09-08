@@ -10,7 +10,7 @@ The page uses some mockup json data defined in javascript, allowing the user to 
 
 The results obtained by the CSC1903.search method are returned as a "weight-sorted" array, where the "weight" of each result depends on the number of occurrence of the matching search terms. Best match is the result with the most weight.
 
-Classes are tested with [Jasmine](http://pivotal.github.com/jasmine/), source for test classes can be found inside the folder <strong>./src/test/spec</strong>.
+Classes are tested with [Jasmine](https://jasmine.github.io/), source for test classes can be found inside the folder <strong>./src/test/spec</strong>.
 
 Main class is inside the folder <strong>./src/main/js</strong>.
 
